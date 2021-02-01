@@ -2,7 +2,8 @@ import telebot
 import json
 
 # Bot API
-bot = telebot.TeleBot("", parse_mode='MarkdownV2')
+key = open('.key').read()
+bot = telebot.TeleBot(key, parse_mode='MarkdownV2')
 
 # Variables
 timetable = []
