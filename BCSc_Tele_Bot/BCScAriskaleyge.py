@@ -1,6 +1,9 @@
 import telebot
 import json
 from datetime import datetime
+import threading
+import schedule
+import time
 
 # Bot API
 key = open('.key').read()
@@ -9,6 +12,7 @@ bot = telebot.TeleBot(key, parse_mode='MarkdownV2')
 # Variables
 timetable = []
 subjects = {}
+grp_ids = open('.groups').read().split(',')
 
 def get_timetable():
 	global timetable
@@ -54,4 +58,33 @@ def send_timetable(message):
 
 	bot.reply_to(message, out_msg)
 
-bot.polling()
+def send_reminder(subject, time):
+	for grp_id in grp_ids:
+		bot.send_message(grp_id, f'*Reminder*\n{subjects[subject]} will start at {time}')
+
+def set_scheduler():
+	# set_before is in minutes
+	set_before = 30
+
+	for day in timetable:
+		if len(timetable[day]) != 0:
+			for subject in timetable[day]:
+				time = timetable[day][subject][0].split(':')
+				new_min = (int(time[1]) - set_before) % 60
+				if new_min > int(time[1]): new_hr = (int(time[0]) - 1) % 24
+				else: new_hr = int(time[0])
+				reminder_time = f'{"{0:0=2d}".format(new_hr)}:{"{0:0=2d}".format(new_min)}'
+				getattr(schedule.every(), day).at(reminder_time).do(send_reminder, subject, timetable[day][subject][0])
+
+def run_scheduler():
+	set_scheduler()
+	while True:
+		schedule.run_pending()
+		time.sleep(1)
+
+for grp_id in grp_ids:
+	print(grp_ids)
+	bot.send_message(grp_id, f'Test')
+
+threading.Thread(target=run_scheduler).start()
+threading.Thread(target=bot.polling).start()
