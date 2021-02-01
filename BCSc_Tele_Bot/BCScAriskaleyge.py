@@ -49,6 +49,7 @@ def send_timetable(message):
 			out_msg = get_times(day, out_msg)
 	else:
 		if not param: param = datetime.today().strftime('%A').lower()
+		elif param not in timetable: param = autocorrect_day(param)
 		out_msg = get_times(param, out_msg)
 
 	bot.reply_to(message, out_msg)
