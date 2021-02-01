@@ -1,5 +1,6 @@
 import telebot
 import json
+from datetime import datetime
 
 # Bot API
 key = open('.key').read()
@@ -19,8 +20,17 @@ def get_subjects():
 	subjects_file = open('./JSON/Subjects.json')
 	subjects = json.load(subjects_file)
 
+get_timetable()
+get_subjects()
+
 def get_param(text):
 	if len(text.split(' ')) > 1: return text.split(' ')[1].lower().strip()
+
+def get_times(day, out_msg):
+	out_msg += f'*{day.capitalize()}*\n'
+	if len(timetable[day]) == 0: return out_msg + '_No classes found_'
+	for subject in timetable[day]: out_msg += f'_{subjects[subject]}_: {timetable[day][subject][0]} \- {timetable[day][subject][1]}\n'
+	return out_msg + '\n'
 
 def autocorrect_day(param):
 	days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday']
@@ -28,27 +38,18 @@ def autocorrect_day(param):
 		for day in days:
 			if param in day: return day
 
-get_timetable()
-get_subjects()
-
-@bot.message_handler(commands=['table'], )
-def send_welcome(message):
+@bot.message_handler(commands=['table'])
+def send_timetable(message):
 	out_msg = ''
 	param = get_param(message.text)
 	
-	if param:
-		param = autocorrect_day(param)
-		if param not in timetable: out_msg = '*Invalid Param*'
-		else:
-			out_msg += f'*{param.capitalize()}*\n'
-			for subject in timetable[param]: out_msg += f'_{subjects[subject]}_: {timetable[param][subject][0]} \- {timetable[param][subject][1]}\n'
-			out_msg += '\n'
-	else:
+	if param == 'all':
 		for day in timetable:
 			if len(timetable[day]) == 0: continue
-			out_msg += f'*{day.capitalize()}*\n'
-			for subject in timetable[day]: out_msg += f'_{subjects[subject]}_: {timetable[day][subject][0]} \- {timetable[day][subject][1]}\n'
-			out_msg += '\n'
+			out_msg = get_times(day, out_msg)
+	else:
+		if not param: param = datetime.today().strftime('%A').lower()
+		out_msg = get_times(param, out_msg)
 
 	bot.reply_to(message, out_msg)
 
