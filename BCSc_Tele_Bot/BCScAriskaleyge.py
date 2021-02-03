@@ -82,9 +82,5 @@ def run_scheduler():
 		schedule.run_pending()
 		time.sleep(1)
 
-for grp_id in grp_ids:
-	print(grp_ids)
-	bot.send_message(grp_id, f'Test')
-
 threading.Thread(target=run_scheduler).start()
 threading.Thread(target=bot.polling).start()
