@@ -104,8 +104,9 @@ def set_scheduler():
 def run_scheduler():
 	set_scheduler()
 	while True:
+		idle_time = schedule.idle_seconds()
+		time.sleep(idle_time)
 		schedule.run_pending()
-		time.sleep(1)
 
 # Running bot
 threading.Thread(target=run_scheduler).start()
