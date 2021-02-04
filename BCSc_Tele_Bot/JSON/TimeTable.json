@@ -1,21 +1,61 @@
 {
-    "sunday": {
-        "CPT203": ["20:00", "22:00"]
-    },
-    "monday": {},
-    "tuesday": {
-        "CPT243": ["16:00", "17:00"],
-        "CPT239": ["18:00", "19:00"]
-    },
-    "wednesday": {
-        "CPT243": ["16:00", "17:00"],
-        "CPT205": ["16:00", "17:00"],
-        "CPT239": ["18:00", "19:00"],
-        "CPT203": ["20:00", "22:00"]
-    },
-    "thursday": {
-        "CPT205": ["16:00", "17:00"]
-    },
-    "friday": {},
-    "saturday": {}
+    "sunday": [
+        {
+            "subject": "CPT203",
+            "time": ["20:00", "22:00"],
+            "class": "",
+            "link": ""
+        }
+    ],
+    "monday": [],
+    "tuesday": [ 
+        {
+            "subject": "CPT243",
+            "time": ["16:00", "17:00"],
+            "class": "",
+            "link": ""
+        },
+        {
+            "subject": "CPT239",
+            "time": ["18:00", "19:00"],
+            "class": "",
+            "link": ""
+        }
+    ],
+    "wednesday": [
+        {
+            "subject": "CPT243",
+            "time": ["16:00", "17:00"],
+            "class": "",
+            "link": "https://meet.google.com/bug-nffw-udp"
+        },
+        {
+            "subject": "CPT205",
+            "time": ["16:00", "17:00"],
+            "class": "",
+            "link": ""
+        },
+        {
+            "subject": "CPT239",
+            "time": ["18:00", "19:00"],
+            "class": "",
+            "link": ""
+        },
+        {
+            "subject": "CPT203",
+            "time": ["20:00", "22:00"],
+            "class": "",
+            "link": ""
+        }
+    ],
+    "thursday": [
+        {
+            "subject": "CPT205",
+            "time": ["16:00", "17:00"],
+            "class": "",
+            "link": ""
+        }
+    ],
+    "friday": [],
+    "saturday": []
 }

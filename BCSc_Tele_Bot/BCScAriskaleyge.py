@@ -7,13 +7,14 @@ import time
 
 # Bot API
 key = open('.key').read()
-bot = telebot.TeleBot(key, parse_mode='MarkdownV2')
+bot = telebot.TeleBot(key, parse_mode='html')
 
 # Variables
 timetable = []
 subjects = {}
 grp_ids = open('.groups').read().split(',')
 
+# Load Files
 def get_timetable():
 	global timetable
 	timetable_file = open('./JSON/TimeTable.json')
@@ -27,13 +28,24 @@ def get_subjects():
 get_timetable()
 get_subjects()
 
+# Utilities
 def get_param(text):
 	if len(text.split(' ')) > 1: return text.split(' ')[1].lower().strip()
 
 def get_times(day, out_msg):
-	out_msg += f'*{day.capitalize()}*\n'
-	if len(timetable[day]) == 0: return out_msg + '_No classes found_'
-	for subject in timetable[day]: out_msg += f'_{subjects[subject]}_: {timetable[day][subject][0]} \- {timetable[day][subject][1]}\n'
+	out_msg += f'<b>{day.upper()}\n</b>'
+	if len(timetable[day]) == 0: return out_msg + '<i>No classes found</i>'
+
+	for details in timetable[day]:
+		for item in details:
+			if details[item] != "":
+				if item == 'subject':
+					out_msg += f'<i>{subjects[details[item]]}:</i>'
+					continue
+				elif item == 'time':
+					out_msg += f' {details[item][0]} - {details[item][1]}\n'
+					continue
+				out_msg += f'{details[item]}\n'
 	return out_msg + '\n'
 
 def autocorrect_day(param):
@@ -42,6 +54,7 @@ def autocorrect_day(param):
 		for day in days:
 			if param in day: return day
 
+# Main
 @bot.message_handler(commands=['table'])
 def send_timetable(message):
 	out_msg = ''
@@ -58,9 +71,14 @@ def send_timetable(message):
 
 	bot.reply_to(message, out_msg)
 
-def send_reminder(subject, time):
+# Scheduler
+def send_reminder(details):
 	for grp_id in grp_ids:
-		bot.send_message(grp_id, f'*Reminder*\n{subjects[subject]} will start at {time}')
+		out_msg = f'{subjects[details["subject"]]}</i> will start at {details["time"][0]}\n'
+		for item in details:
+			if item == 'time' or item == 'subject' or details[item] == '': continue
+			out_msg += f'{details[item]}\n'
+		bot.send_message(grp_id, f'<b>Reminder</b>\n<i>{out_msg}')
 
 def set_scheduler():
 	# set_before is in minutes
@@ -68,13 +86,13 @@ def set_scheduler():
 
 	for day in timetable:
 		if len(timetable[day]) != 0:
-			for subject in timetable[day]:
-				time = timetable[day][subject][0].split(':')
+			for details in timetable[day]:
+				time = details["time"][0].split(':')
 				new_min = (int(time[1]) - set_before) % 60
 				if new_min > int(time[1]): new_hr = (int(time[0]) - 1) % 24
 				else: new_hr = int(time[0])
 				reminder_time = f'{"{0:0=2d}".format(new_hr)}:{"{0:0=2d}".format(new_min)}'
-				getattr(schedule.every(), day).at(reminder_time).do(send_reminder, subject, timetable[day][subject][0])
+				getattr(schedule.every(), day).at(reminder_time).do(send_reminder, details)
 
 def run_scheduler():
 	set_scheduler()
@@ -82,5 +100,6 @@ def run_scheduler():
 		schedule.run_pending()
 		time.sleep(1)
 
+# Running bot
 threading.Thread(target=run_scheduler).start()
 threading.Thread(target=bot.polling).start()
