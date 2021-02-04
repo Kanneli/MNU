@@ -80,10 +80,19 @@ def send_reminder(details):
 			out_msg += f'{details[item]}\n'
 		bot.send_message(grp_id, f'<b>Reminder</b>\n<i>{out_msg}')
 
+def send_class_start(details):
+	for grp_id in grp_ids:
+		out_msg = f'{subjects[details["subject"]]}</i> has started\n'
+		for item in details:
+			if item == 'time' or item == 'subject' or details[item] == '': continue
+			out_msg += f'{details[item]}\n'
+		bot.send_message(grp_id, f'<b>Attention</b>\n<i>{out_msg}')
+
 def set_scheduler():
 	# set_before is in minutes
 	set_before = 30
 
+	# class reminders
 	for day in timetable:
 		if len(timetable[day]) != 0:
 			for details in timetable[day]:
@@ -93,6 +102,13 @@ def set_scheduler():
 				else: new_hr = int(time[0])
 				reminder_time = f'{"{0:0=2d}".format(new_hr)}:{"{0:0=2d}".format(new_min)}'
 				getattr(schedule.every(), day).at(reminder_time).do(send_reminder, details)
+
+	# class starting alert
+	for day in timetable:
+		if len(timetable[day]) != 0:
+			for details in timetable[day]:
+				time = details["time"][0]
+				getattr(schedule.every(), day).at(time).do(send_class_start, details)
 
 def run_scheduler():
 	set_scheduler()
