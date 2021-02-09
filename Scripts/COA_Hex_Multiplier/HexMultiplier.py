@@ -1,5 +1,5 @@
-num_one = input('Enter a hex value: ')
-num_two = input('Enter another hex value: ')
+num_one = input('Enter a hex value: ').strip()
+num_two = input('Enter another hex value: ').strip()
 result = []
 answer = ''
 
