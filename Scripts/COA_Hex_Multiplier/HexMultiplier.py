@@ -1,5 +1,5 @@
-num_one = '9CCB'
-num_two = '8D99'
+num_one = input('Enter a hex value: ')
+num_two = input('Enter another hex value: ')
 result = []
 answer = ''
 
