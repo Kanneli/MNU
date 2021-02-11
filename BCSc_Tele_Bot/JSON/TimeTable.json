@@ -12,7 +12,7 @@
             "subject": "CPT205",
             "time": ["16:00", "18:00"],
             "class": "",
-            "link": ""
+            "link": "https://meet.google.com/ejd-gjbr-qyj"
         }
     ],
     "tuesday": [ 
@@ -26,7 +26,7 @@
             "subject": "CPT205",
             "time": ["20:00", "22:00"],
             "class": "",
-            "link": ""
+            "link": "https://meet.google.com/ejd-gjbr-qyj"
         }
     ],
     "wednesday": [
@@ -40,7 +40,7 @@
             "subject": "CPT239",
             "time": ["18:00", "20:00"],
             "class": "",
-            "link": ""
+            "link": "https://meet.google.com/xae-icsd-jvh"
         }
     ],
     "thursday": [
@@ -54,7 +54,7 @@
             "subject": "CPT239",
             "time": ["20:00", "22:00"],
             "class": "",
-            "link": ""
+            "link": "https://meet.google.com/xae-icsd-jvh"
         }
     ],
     "friday": [],
