@@ -2,50 +2,45 @@
     "sunday": [
         {
             "subject": "CPT203",
-            "time": ["20:00", "22:00"],
+            "time": ["16:00", "18:00"],
             "class": "",
             "link": ""
         }
     ],
-    "monday": [],
+    "monday": [
+        {
+            "subject": "CPT205",
+            "time": ["16:00", "18:00"],
+            "class": "",
+            "link": "https://meet.google.com/ejd-gjbr-qyj"
+        }
+    ],
     "tuesday": [ 
         {
             "subject": "CPT243",
-            "time": ["16:00", "17:00"],
+            "time": ["16:00", "18:00"],
             "class": "",
             "link": ""
         },
         {
-            "subject": "CPT239",
-            "time": ["18:00", "19:00"],
+            "subject": "CPT205",
+            "time": ["20:00", "22:00"],
             "class": "",
-            "link": ""
+            "link": "https://meet.google.com/ejd-gjbr-qyj"
         }
     ],
     "wednesday": [
         {
             "subject": "CPT243",
-            "time": ["16:00", "17:00"],
-            "class": "",
-            "link": "https://meet.google.com/bug-nffw-udp"
-        },
-        {
-            "subject": "CPT205",
-            "time": ["16:00", "17:00"],
+            "time": ["16:00", "18:00"],
             "class": "",
             "link": ""
-        },
+        }, 
         {
             "subject": "CPT239",
-            "time": ["18:00", "19:00"],
+            "time": ["18:00", "20:00"],
             "class": "",
-            "link": ""
-        },
-        {
-            "subject": "CPT203",
-            "time": ["20:00", "22:00"],
-            "class": "",
-            "link": ""
+            "link": "https://meet.google.com/xae-icsd-jvh"
         }
     ],
     "thursday": [
@@ -54,6 +49,12 @@
             "time": ["16:00", "17:00"],
             "class": "",
             "link": ""
+        },
+        {
+            "subject": "CPT239",
+            "time": ["20:00", "22:00"],
+            "class": "",
+            "link": "https://meet.google.com/xae-icsd-jvh"
         }
     ],
     "friday": [],

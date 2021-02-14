@@ -1,9 +1,11 @@
-import telebot
+import os
 import json
-from datetime import datetime
-import threading
+import time
+import random
+import telebot
 import schedule
-import time 
+import threading
+from datetime import datetime
 
 # Bot API
 key = open('.key').read()
@@ -15,6 +17,8 @@ cancelled = []
 json_files = {}
 file_names = ['Subjects', 'TimeTable']
 grp_ids = open('.groups').read().split(',')
+admin_ids = open('.admins').read().split(',')
+hamajehey = ['ނޫޅެން', 'ކައޭ ޖެހިބަ އަޖައިބެއް ނުން', 'ހަމަ ހުވާތަ', 'ހެހެ ވިސްނާލާނަން', 'ތީ އެންމެ މައިތިރި މީހާ ވިއްޔާ', 'އަޅުގަނޑު ވަރަށް ހަމަ ޖެހިގެން މިހިރިީ']
 
 # Load JSONs
 def load_json(files):
@@ -27,12 +31,12 @@ load_json(file_names)
 
 # Utilities
 def get_param(text):
-	if len(text.split(' ')) > 1: return text.split(' ', 1)[1].lower().strip()
+	if len(text.strip().split(' ')) > 1: return text.split(' ', 1)[1].lower().strip()
 
 def get_times(day, out_msg):
-	if not day: return '<b>Invalid param</b>'
+	if not day: return '<b>ތަންކޮޅެއް ހަމަޖެހޭ އެއްޗެއް ލިޔަން ދަސްކޮށްބަ</b>'
 	out_msg += f'<b>{day.upper()}\n</b>'
-	if len(json_files['TimeTable'][day]) == 0: return out_msg + '<i>No classes found</i>'
+	if len(json_files['TimeTable'][day]) == 0: return out_msg + 'ކަލޯ ނެތޭ ކުލާހެއް ފެންނާކަށް'
 
 	count = 0
 	for details in json_files['TimeTable'][day]:
@@ -47,7 +51,7 @@ def get_times(day, out_msg):
 					out_msg += f' {details[item][0]} - {details[item][1]}\n'
 					continue
 				out_msg += f'{details[item]}\n'
-	if count == 0: return out_msg + '<i>No classes found</i>' 
+	if count == 0: return out_msg + 'ކަލޯ ނެތޭ ކުލާހެއް ފެންނާކަށް' 
 	return out_msg + '\n'
 
 def autocorrect_day(param):
@@ -64,10 +68,15 @@ def calc_time(time, diff):
 	return f'{"{0:0=2d}".format(new_hr)}:{"{0:0=2d}".format(new_min)}'
 
 # Main Commands
+@bot.message_handler(commands=['hamajehey'])
+def end_bot(message):
+	bot.reply_to(message, hamajehey[random.randint(0, len(hamajehey) - 1)])
+
 @bot.message_handler(commands=['table'])
 def send_timetable(message):
 	out_msg = ''
 	param = get_param(message.text)
+	print(message)
 	
 	if param == 'all':
 		for day in json_files['TimeTable']:
@@ -77,18 +86,27 @@ def send_timetable(message):
 		if not param: param = datetime.today().strftime('%A').lower()
 		elif param not in json_files['TimeTable']: param = autocorrect_day(param)
 		out_msg = get_times(param, out_msg)
-	bot.reply_to(message, out_msg)
+	bot.reply_to(message, out_msg, disable_web_page_preview=True)
+
+@bot.message_handler(commands=['end'])
+def end_bot(message):
+	if str(message.from_user.id) not in admin_ids:
+		bot.reply_to(message, '<b>މަނޫޅެން ކައޭ ބުނާ ކަމެއް ކުރާކަށް</b>')
+		return
+	for grp_id in grp_ids:
+		bot.send_message(grp_id, '<b>މަ މިދިޔައީ ނިދަން، ވަރަށް ސަލާން</b>')
+	os._exit(0)
 
 @bot.message_handler(commands=['cancel'])
 def cancel_alert(message):
 	param = get_param(message.text).split(' ')
 	if not param or len(param) != 3:
-		bot.reply_to(message, '<b>Please pass in the correct details of the class that is cancelled</b>')
+		bot.reply_to(message, '<b>ތަންކޮޅެއް ހަމަޖެހޭ އެއްޗެއް ލިޔަން ދަސްކޮށްބަ</b>')
 		return
 
 	key = f'{param[0].upper()}-{autocorrect_day(param[1])}-{param[2]}'
 	if key not in scheduled or len(scheduled[key]) == 0:
-		bot.reply_to(message, '<b>No classes found for the given details</b>')
+		bot.reply_to(message, '<b>ތި ބުނި ކުލާހެއް ހޯދޭނީ ކައެޔަށް އެކަނި</b>')
 		return
 
 	for item in scheduled[key]:
@@ -106,7 +124,7 @@ def send_alert(details, title, msg):
 		for item in details:
 			if item == 'time' or item == 'subject' or details[item] == '': continue
 			out_msg += f'{details[item]}\n'
-		bot.send_message(grp_id, f'<b>{title}</b>\n<i>{out_msg}')
+		bot.send_message(grp_id, f'<b>{title}</b>\n<i>{out_msg}', disable_web_page_preview=True)
 	return schedule.CancelJob
 
 def set_scheduler():
