@@ -76,7 +76,6 @@ def end_bot(message):
 def send_timetable(message):
 	out_msg = ''
 	param = get_param(message.text)
-	print(message)
 	
 	if param == 'all':
 		for day in json_files['TimeTable']:
@@ -99,11 +98,16 @@ def end_bot(message):
 
 @bot.message_handler(commands=['cancel'])
 def cancel_alert(message):
-	param = get_param(message.text).split(' ')
-	if not param or len(param) != 3:
+	param = get_param(message.text)
+	if not param:
+		bot.reply_to(message, '<b>ކެންސަލް ކުރަންވީ ކުލާހެއް ބިމު އަޑިން ނެރެންތަ ޖެހެނީ</b>')
+		return
+	elif len(param) != 3:
 		bot.reply_to(message, '<b>ތަންކޮޅެއް ހަމަޖެހޭ އެއްޗެއް ލިޔަން ދަސްކޮށްބަ</b>')
 		return
 
+
+	param = param.split(' ')
 	key = f'{param[0].upper()}-{autocorrect_day(param[1])}-{param[2]}'
 	if key not in scheduled or len(scheduled[key]) == 0:
 		bot.reply_to(message, '<b>ތި ބުނި ކުލާހެއް ހޯދޭނީ ކައެޔަށް އެކަނި</b>')
