@@ -2,3 +2,4 @@
 .groups
 .admins
 .vscode
+__pycache__
