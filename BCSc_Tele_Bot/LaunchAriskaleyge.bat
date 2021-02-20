@@ -1,3 +1,3 @@
 ECHO Launching BCScAriskaleyge...
-Python BCScAriskaleyge.py
+Python bscs_ariskaleyge.py
 PAUSE
