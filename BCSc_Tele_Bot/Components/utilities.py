@@ -8,10 +8,13 @@ def load_json(file):
 def get_param(text):
 	if len(text.strip().split(' ')) > 1: return text.split(' ', 1)[1].lower().strip()
 
+def isSubject(subject, subjects):
+	if subject.upper() in subjects: return True
+
 def get_times(day, out_msg, timetable, subjects, cancelled):
 	if not day: return '<b>ތަންކޮޅެއް ހަމަޖެހޭ އެއްޗެއް ލިޔަން ދަސްކޮށްބަ</b>'
 	out_msg += f'<b>{day.upper()}\n</b>'
-	if len(timetable[day]) == 0: return out_msg + 'ކަލޯ ނެތޭ ކުލާހެއް ފެންނާކަށް'
+	if len(timetable[day]) == 0: return out_msg + 'ކަލޯ ނެތޭ ކުލާހެއް ފެންނާކަށް' + '\n'
 
 	count = 0
 	for details in timetable[day]:
@@ -26,7 +29,7 @@ def get_times(day, out_msg, timetable, subjects, cancelled):
 					out_msg += f' {details[item][0]} - {details[item][1]}\n'
 					continue
 				out_msg += f'{details[item]}\n'
-	if count == 0: return out_msg + 'ކަލޯ ނެތޭ ކުލާހެއް ފެންނާކަށް' 
+	if count == 0: return out_msg + 'ކަލޯ ނެތޭ ކުލާހެއް ފެންނާކަށް' + '\n'
 	return out_msg + '\n'
 
 def autocorrect_day(param):

@@ -4,9 +4,10 @@ import random
 import telebot
 import schedule
 import threading
-from datetime import datetime
+from telebot import types
 from Components.utilities import *
 from Components.error_handler import *
+from Components.table_manager import *
 
 # Bot API
 key = open('./Keys/.key').read()
@@ -14,32 +15,63 @@ bot = telebot.TeleBot(key, parse_mode='html')
 
 # Variables
 scheduled = {}
-cancelled = []
 error = ErrorHandler()
-timetable = load_json('TimeTable')
+table = TableManager()
 subjects = load_json('Subjects')
 grp_ids = open('./Keys/.groups').read().split(',')
 admin_ids = open('./Keys/.admins').read().split(',')
 hamajehey = ['ނޫޅެން', 'ކައޭ ޖެހިބަ އަޖައިބެއް ނުން', 'ހަމަ ހުވާތަ', 'ހެހެ ވިސްނާލާނަން', 'ތީ އެންމެ މައިތިރި މީހާ ވިއްޔާ', 'އަޅުގަނޑު ވަރަށް ހަމަ ޖެހިގެން މިހިރިީ']
 
 # Main Commands
+def cancel_markup(subject):
+	markup = types.InlineKeyboardMarkup()
+	days = []
+	markup.row_width = 1
+	for day in table.all:
+		for schedule in table.all[day]:
+			if schedule["subject"] == subject.upper(): days.append(day)
+	if len(days) == 0: return None
+	markup.add(types.InlineKeyboardButton('All', callback_data=f"{subject.upper()}-all"))
+	for day in days:
+		markup.add(types.InlineKeyboardButton(day.capitalize(), callback_data=f"{subject.upper()}-{day}"))
+	return markup
+
+@bot.message_handler(commands=['cancel'])
+def cancel_menu(message):
+	param = get_param(message.text)
+	if not param:
+		bot.reply_to(message, error.missing_class)
+		return
+	if not isSubject(param, subjects):
+		bot.reply_to(message, error.invalid_class)
+		return
+	markup = cancel_markup(param)
+	if not markup: bot.send_message(message.chat.id, error.no_class)
+	else: bot.send_message(message.chat.id, f"Which classes of {param.upper()} do you want to cancel?", reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: True)
+def cancel_class(call):
+	cancel = False
+	call_data = call.data.split('-')
+	param = call.data
+	if call_data[1] == 'all': param = call_data[0]
+	for data in scheduled:
+		if param in data:
+			for item in scheduled[data]:
+				schedule.cancel_job(item)
+			table.cancelled.append(data)
+			cancel = True
+	if cancel: bot.edit_message_text(f'The requested classes for {call_data[0]} have been cancelled', call.message.chat.id, call.message.id)
+	else: bot.edit_message_text(error.something, call.message.chat.id, call.message.id)
+
 @bot.message_handler(commands=['hamajehey'])
 def end_bot(message):
 	bot.reply_to(message, hamajehey[random.randint(0, len(hamajehey) - 1)])
 
 @bot.message_handler(commands=['table'])
-def send_timetable(message):
-	out_msg = ''
+def timetable_handler(message):
 	param = get_param(message.text)
-	
-	if param == 'all':
-		for day in timetable:
-			if len(timetable[day]) == 0: continue
-			out_msg = get_times(day, out_msg, timetable, subjects, cancelled)
-	else:
-		if not param: param = datetime.today().strftime('%A').lower()
-		elif param not in timetable: param = autocorrect_day(param)
-		out_msg = get_times(param, out_msg, timetable, subjects, get_times)
+	out_msg = table.send_timetable(param)
 	bot.reply_to(message, out_msg, disable_web_page_preview=True)
 
 @bot.message_handler(commands=['end'])
@@ -51,30 +83,6 @@ def end_bot(message):
 		bot.send_message(grp_id, '<b>މަ މިދިޔައީ ނިދަން، ވަރަށް ސަލާން</b>')
 	os._exit(0)
 
-@bot.message_handler(commands=['cancel'])
-def cancel_alert(message):
-	param = get_param(message.text)
-	if not param:
-		bot.reply_to(message, error.invalid_class)
-		return
-	elif len(param) != 3:
-		bot.reply_to(message, error.invalid)
-		return
-
-
-	param = param.split(' ')
-	key = f'{param[0].upper()}-{autocorrect_day(param[1])}-{param[2]}'
-	if key not in scheduled or len(scheduled[key]) == 0:
-		bot.reply_to(message, error.invalid_class)
-		return
-
-	for item in scheduled[key]:
-		schedule.cancel_job(item)
-		cancelled.append(key)
-	bot.reply_to(
-		message,
-		f'<b>{subjects[param[0].upper()]} class on {autocorrect_day(param[1])} at {param[2]} has been cancelled</b>'
-	)
 
 # Set Scheduler and Alerts
 def send_alert(details, title, msg):
@@ -96,9 +104,9 @@ def set_scheduler():
 	# set_before is in minutes
 	set_before = 30
 	
-	for day in timetable:
-		if len(timetable[day]) != 0:
-			for details in timetable[day]:
+	for day in table.all:
+		if len(table.all[day]) != 0:
+			for details in table.all[day]:
 				time = details["time"][0]
 				key = f'{details["subject"]}-{day}-{time}'
 				subj_name = subjects[details["subject"]]
