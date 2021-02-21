@@ -1,11 +1,10 @@
 import os
-import time
-import random
 import telebot
 import schedule
 import threading
 from telebot import types
 from Components.utilities import *
+from Components.hamajehey import Hamajehey
 from Components.scheduler import Scheduler
 from Components.error_handler import ErrorHandler
 from Components.table_manager import TableManager
@@ -14,14 +13,15 @@ from Components.table_manager import TableManager
 key = open('./Keys/.key').read()
 bot = telebot.TeleBot(key, parse_mode='html')
 
-# Initiating Variables
-scheduled = {}
-error = ErrorHandler()
-table = TableManager()
-subjects = load_json('Subjects')
+# Initiating Keys
 grp_ids = open('./Keys/.groups').read().split(',')
 admin_ids = open('./Keys/.admins').read().split(',')
-hamajehey = ['ނޫޅެން', 'ކައޭ ޖެހިބަ އަޖައިބެއް ނުން', 'ހަމަ ހުވާތަ', 'ހެހެ ވިސްނާލާނަން', 'ތީ އެންމެ މައިތިރި މީހާ ވިއްޔާ', 'އަޅުގަނޑު ވަރަށް ހަމަ ޖެހިގެން މިހިރިީ']
+
+# Initiate Variables
+error = ErrorHandler()
+table = TableManager()
+hamajehey = Hamajehey()
+subjects = load_json('Subjects')
 
 # Initiating Scheduler
 alerts = Scheduler(30, bot, grp_ids)
@@ -75,8 +75,9 @@ def timetable_handler(message):
 	bot.reply_to(message, out_msg, disable_web_page_preview=True)
 
 @bot.message_handler(commands=['hamajehey'])
-def end_bot(message):
-	bot.reply_to(message, hamajehey[random.randint(0, len(hamajehey) - 1)])
+def hamajehey_handler(message):
+	out_msg = hamajehey.send_reply()
+	bot.reply_to(message, out_msg)
 
 @bot.message_handler(commands=['end'])
 def end_bot(message):
