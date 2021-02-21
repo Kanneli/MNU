@@ -1,8 +1,6 @@
 import os
 import telebot
-import schedule
 import threading
-from telebot import types
 from Components.utilities import *
 from Components.hamajehey import Hamajehey
 from Components.scheduler import Scheduler
@@ -27,57 +25,27 @@ subjects = load_json('Subjects')
 alerts = Scheduler(30, bot, grp_ids)
 
 # Main Bot Commands
-def cancel_markup(subject):
-	markup = types.InlineKeyboardMarkup()
-	days = []
-	markup.row_width = 1
-	for day in table.all:
-		for schedule in table.all[day]:
-			if schedule["subject"] == subject.upper(): days.append(day)
-	if len(days) == 0: return None
-	markup.add(types.InlineKeyboardButton('All', callback_data=f"{subject.upper()}-all"))
-	for day in days:
-		markup.add(types.InlineKeyboardButton(day.capitalize(), callback_data=f"{subject.upper()}-{day}"))
-	return markup
-
-@bot.message_handler(commands=['cancel'])
-def cancel_menu(message):
-	param = get_param(message.text)
-	if not param:
-		bot.reply_to(message, error.missing_class)
-		return
-	if not isSubject(param, subjects):
-		bot.reply_to(message, error.invalid_class)
-		return
-	markup = cancel_markup(param)
-	if not markup: bot.send_message(message.chat.id, error.no_class)
-	else: bot.send_message(message.chat.id, f"Which classes of {param.upper()} do you want to cancel?", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: True)
-def cancel_class(call):
-	cancel = False
-	call_data = call.data.split('-')
-	param = call.data
-	if call_data[1] == 'all': param = call_data[0]
-	for data in scheduled:
-		if param in data:
-			for item in scheduled[data]:
-				schedule.cancel_job(item)
-			table.cancelled.append(data)
-			cancel = True
-	if cancel: bot.edit_message_text(f'The requested classes for {call_data[0]} have been cancelled', call.message.chat.id, call.message.id)
-	else: bot.edit_message_text(error.something, call.message.chat.id, call.message.id)
-
 @bot.message_handler(commands=['table'])
 def timetable_handler(message):
 	param = get_param(message.text)
 	out_msg = table.send_timetable(param)
 	bot.reply_to(message, out_msg, disable_web_page_preview=True)
 
+@bot.message_handler(commands=['cancel'])
+def cancel_handler(message):
+	param = get_param(message.text)
+	out_msg, markup = table.initiate_cancel(param)
+	bot.send_message(message.chat.id, out_msg, reply_markup=markup)
+
 @bot.message_handler(commands=['hamajehey'])
 def hamajehey_handler(message):
 	out_msg = hamajehey.send_reply()
 	bot.reply_to(message, out_msg)
+
+@bot.callback_query_handler(func=lambda call: True)
+def call_handler(call):
+	out_msg = table.confirm_cancel(call.data, alerts)
+	bot.edit_message_text(out_msg, call.message.chat.id, call.message.id)
 
 @bot.message_handler(commands=['end'])
 def end_bot(message):

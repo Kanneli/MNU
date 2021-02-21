@@ -45,6 +45,10 @@ class Scheduler():
             time.sleep(idle_time)
             schedule.run_pending()
 
+    @staticmethod
+    def cancel_alert(alert):
+        schedule.cancel_job(alert)
+
     def clear_scheduler(self):
         self.scheduled = {}
         schedule.clear()
