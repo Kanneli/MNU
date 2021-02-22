@@ -1,6 +1,6 @@
 ﻿*Greetings*
  
-Not much hapenning as of now but will happen soon
+Currently contains the BCSc Bot and some scripts
 
 *Rules:*
 
