@@ -19,7 +19,6 @@ admin_ids = open('./Keys/.admins').read().split(',')
 error = ErrorHandler()
 table = TableManager()
 hamajehey = Hamajehey()
-subjects = load_json('Subjects')
 
 # Initiating Scheduler
 alerts = Scheduler(30, bot, grp_ids)
