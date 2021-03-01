@@ -2,11 +2,15 @@ import os
 import sys
 import telebot
 import threading
+import datetime
 from Components.utilities import *
 from Components.hamajehey import Hamajehey
 from Components.scheduler import Scheduler
 from Components.error_handler import ErrorHandler
 from Components.table_manager import TableManager
+
+# Set Timezone
+os.environ['TZ'] = 'GMT-05'
 
 # Bot API
 key = sys.argv[1]
