@@ -10,6 +10,7 @@ from Components.table_manager import TableManager
 
 # Bot API
 key = sys.argv[1]
+# key = open('./Keys/.key').read()
 bot = telebot.TeleBot(key, parse_mode='html')
 
 # Initiating Keys
