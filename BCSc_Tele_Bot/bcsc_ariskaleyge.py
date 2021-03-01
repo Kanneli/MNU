@@ -1,4 +1,5 @@
 import os
+import sys
 import telebot
 import threading
 from Components.utilities import *
@@ -8,7 +9,7 @@ from Components.error_handler import ErrorHandler
 from Components.table_manager import TableManager
 
 # Bot API
-key = open('./Keys/.key').read()
+key = sys.argv[1]
 bot = telebot.TeleBot(key, parse_mode='html')
 
 # Initiating Keys
