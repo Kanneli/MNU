@@ -10,7 +10,9 @@ from Components.error_handler import ErrorHandler
 from Components.table_manager import TableManager
 
 # Set Timezone
+print(datetime.datetime.now())
 os.environ['TZ'] = 'GMT-05'
+print(datetime.datetime.now())
 
 # Bot API
 key = sys.argv[1]
