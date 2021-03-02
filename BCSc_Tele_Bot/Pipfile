@@ -8,8 +8,6 @@ verify_ssl = true
 [packages]
 pytelegrambotapi = "*"
 schedule = "*"
-tzlocal = "*"
-pytz = "*"
 
 [requires]
 python_version = "3.8"

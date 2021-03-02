@@ -1,20 +1,11 @@
-import os
 import sys
 import telebot
 import threading
-import datetime
-import time
-from tzlocal import get_localzone
 from Components.utilities import *
 from Components.hamajehey import Hamajehey
 from Components.scheduler import Scheduler
 from Components.error_handler import ErrorHandler
 from Components.table_manager import TableManager
-
-# Set Timezone
-print(get_localzone())
-os.environ['TZ'] = 'GMT+05'
-print(datetime.datetime.now().time())
 
 # Bot API
 key = sys.argv[1]
